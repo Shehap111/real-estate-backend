@@ -19,7 +19,7 @@ app.use(express.json());
 // CORS config
 app.use(
   cors({
-    origin: 'https://real-estate-frontend.vercel.app', // عدلها حسب الفرونت
+    origin: 'https://real-estate-frontend-tan.vercel.app/', // عدلها حسب الفرونت
     credentials: true,
   })
 );
