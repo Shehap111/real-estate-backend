@@ -2,32 +2,36 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import path from 'path';
-import connectDB from './config/db.js';
+import { fileURLToPath } from 'url';
+import connectDB from '../config/db.js';
 
-import cityRoutes from './routes/cityRoutes.js';
-import adminRoutes from './routes/adminRoutes.js';
-import propertyTypeRoutes from './routes/propertyTypeRoutes.js';
-import propertyRoutes from './routes/propertyRoutes.js';
-import blogRoutes from './routes/blogRoutes.js';
-import contactRoutes from './routes/contactRoutes.js';
+import cityRoutes from '../routes/cityRoutes.js';
+import adminRoutes from '../routes/adminRoutes.js';
+import propertyTypeRoutes from '../routes/propertyTypeRoutes.js';
+import propertyRoutes from '../routes/propertyRoutes.js';
+import blogRoutes from '../routes/blogRoutes.js';
+import contactRoutes from '../routes/contactRoutes.js';
 
 dotenv.config();
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 const app = express();
 
 // Middleware
 app.use(cors({
-  origin: "https://real-estate-frontend-tan.vercel.app/", // غيره لدومين الفرونت لما ترفعه
+  origin: "https://real-estate-frontend-tan.vercel.app", // دومين الفرونت النهائي
   credentials: true,
 }));
 app.use(express.json());
 
-// Static folder for uploaded images
-// const __dirname = path.resolve();
-// app.use('/uploads', express.static(path.join(__dirname, '/uploads')));
+// Static folder (اختياري)
+// app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 // Routes
 app.get("/", (req, res) => {
-  res.send("API is running...");
+  res.send("✅ API is running on Vercel serverless function");
 });
 app.use('/api/admin', adminRoutes);
 app.use('/api/cities', cityRoutes);
@@ -36,20 +40,8 @@ app.use('/api/properties', propertyRoutes);
 app.use('/api/blog', blogRoutes);
 app.use('/api/contact', contactRoutes);
 
-// Start server
-const PORT = process.env.PORT || 5000;
+// تأكد من الاتصال بقاعدة البيانات قبل كل ريكويست
+await connectDB();
 
-// اتصال بقاعدة البيانات
-const connectDB = async () => {
-  try {
-    await mongoose.connect(process.env.MONGO_URI);
-    console.log("✅ MongoDB Connected...");
-  } catch (error) {
-    console.error("❌ Database connection failed", error);
-    process.exit(1);
-  }
-};
-
-connectDB();
-
+// Export Express app كـ handler متوافق مع Vercel
 export default app;
